@@ -1,0 +1,72 @@
+#!/bin/bash
+
+add_to_rc_if_not_exist()
+{
+	grep -q -F "$2" ~/."$1"rc || echo "export" "$2" >> ~/."$1"rc
+}
+
+have_rc()
+{
+	if [ -f ~/."$1"rc ]
+	then
+		return 0
+	else
+		return 1
+	fi
+}
+
+add_to_rcs_if_not_exist()
+{
+	if have_rc "bash"
+	then
+		add_to_rc_if_not_exist "bash" $1
+	fi
+	if have_rc "zsh"
+	then
+		add_to_rc_if_not_exist "zsh" $1
+	fi
+	if have_rc "fish"
+	then
+		add_to_rc_if_not_exist "fish" $1
+	fi
+	if have_rc "tcsh"
+	then
+		add_to_rc_if_not_exist "tcsh" $1
+	fi
+}
+
+wget http://www.sfml-dev.org/files/CSFML-2.2-linux-gcc-64-bit.tar.bz2
+wget http://www.sfml-dev.org/files/SFML-2.2-linux-gcc-64-bit.tar.gz
+wget https://sourceforge.net/projects/glew/files/glew/1.10.0/glew-1.10.0.tgz
+tar -xf SFML-2.2-linux-gcc-64-bit.tar.gz
+tar -xf CSFML-2.2-linux-gcc-64-bit.tar.bz2
+tar -xf glew-1.10.0.tgz
+rm -f SFML-2.2-linux-gcc-64-bit.tar.gz CSFML-2.2-linux-gcc-64-bit.tar.bz2 glew-1.10.0.tgz
+rm ~/.libs/SFML-2.2 ~/.libs/CSFML-2.2 ~/.libs/GLEW-1.10.0 -rf
+if [ ! -d ~/.libs ]
+then
+	mkdir ~/.libs
+fi
+mv CSFML-2.2 ~/.libs/CSFML-2.2
+mv SFML-2.2 ~/.libs/SFML-2.2
+mv glew-1.10.0 ~/.libs/GLEW-1.10.0
+
+sudo apt install libx11-dev libxmu-dev libxi-dev libgl-dev libopenal-dev
+cd ~/.libs/GLEW-1.10.0
+make
+
+add_to_rcs_if_not_exist "LIBRARY_PATH=\$LIBRARY_PATH:$HOME/.libs/CSFML-2.2/lib"
+add_to_rcs_if_not_exist "LD_LIBRARY_PATH=\$LIBRARY_PATH:$HOME/.libs/CSFML-2.2/lib"
+add_to_rcs_if_not_exist "CPATH=\$CPATH:$HOME/.libs/CSFML-2.2/include"
+
+add_to_rcs_if_not_exist "LIBRARY_PATH=\$LIBRARY_PATH:$HOME/.libs/SFML-2.2/lib"
+add_to_rcs_if_not_exist "LD_LIBRARY_PATH=\$LIBRARY_PATH:$HOME/.libs/SFML-2.2/lib"
+add_to_rcs_if_not_exist "CPATH=\$CPATH:$HOME/.libs/SFML-2.2/include"
+
+add_to_rcs_if_not_exist "LIBRARY_PATH=\$LIBRARY_PATH:$HOME/.libs/GLEW-1.10.0/lib"
+add_to_rcs_if_not_exist "LD_LIBRARY_PATH=\$LIBRARY_PATH:$HOME/.libs/GLEW-1.10.0/lib"
+add_to_rcs_if_not_exist "CPATH=\$CPATH:$HOME/.libs/GLEW-1.10.0/include"
+
+clear
+echo "La CSFML 2.2 a bien été installée"
+echo "Pensez à rajouter -lcsfml-graphics -lcsfml-audio -lcsfml-window -lcsfml-system -lsfml-graphics -lsfml-audio -lsfml-window -lsfml-system dans votre Makefile"

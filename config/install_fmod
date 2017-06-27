@@ -1,0 +1,13 @@
+#!/bin/bash
+
+if [ ! -e fmod.tar.gz ]
+then
+        echo "Please download the .tar.gz file for linux from the official site and place it here with the name \"fmod.tar.gz\""
+else
+        cat fmod.tar.gz | tar zx
+        cd fmodstudioapi*/api/lowlevel/
+        sudo cp inc/* /usr/include/
+        sudo cp lib/x86_64/* /usr/lib/
+        rm -rf fmodstudioapi*
+        echo "Success !"
+fi
